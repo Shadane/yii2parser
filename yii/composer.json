@@ -24,7 +24,14 @@
     "yiisoft/yii2-bootstrap": "*",
     "yiisoft/yii2-swiftmailer": "*",
     "libraries/phpquery": "0.9.5",
-    "linslin/yii2-curl": "*"
+    "linslin/yii2-curl": "*",
+    "kartik-v/yii2-grid": "@dev",
+    "kartik-v/yii2-mpdf": "@dev",
+    "kartik-v/yii2-editable": "*",
+    "kartik-v/yii2-widgets": "*",
+    "kartik-v/yii2-detail-view": "dev-master",
+    "kartik-v/yii2-popover-x": "*",
+    "kartik-v/yii2-widget-alert": "*"
   },
   "repositories":[ {
     "type": "package",

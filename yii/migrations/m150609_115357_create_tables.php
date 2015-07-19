@@ -43,7 +43,7 @@ class m150609_115357_create_tables extends Migration
             'price' => Schema::TYPE_STRING . ' NOT NULL',
             'url' => 'varchar(2000)' . ' NOT NULL',
             'url_icon' => 'varchar(2000)' . ' NOT NULL',
-            'url_img' => 'varchar(60535)' . ' NOT NULL',
+            'url_img' => 'varchar(2000)' . ' NOT NULL',
             'description' => Schema::TYPE_TEXT . ' NOT NULL'
         ], $tableOptions);
     }
