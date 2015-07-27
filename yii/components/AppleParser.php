@@ -10,14 +10,18 @@ class AppleParser extends BaseParser
 
     const SELECTOR_TITLE = 'trackCensoredName';
     const SELECTOR_DESC = 'description';
-    const SELECTOR_PRICE = 'price';
+    const SELECTOR_PRICE = 'formattedPrice';
     const SELECTOR_APP_URL = 'trackViewUrl';
 
     const SELECTOR_APPLIST = 'results';
     const SELECTOR_URL_ICON = 'artworkUrl100';
     const SELECTOR_IMAGES = 'screenshotUrls';
 
-
+    /** -----------------------------------------------------------
+     *                   processAccPage
+     * -----------------------------------------------------------
+     * Действует по аналогии с одноименным методом базового класса
+     * ----------------------------------------------------------- */
     private function parseSingleApp($appJsonDecoded)
     {
         $app = [];
@@ -32,7 +36,14 @@ class AppleParser extends BaseParser
 
         $this->appPush($app);
     }
-
+    /** -----------------------------------------------------------
+     *                   processAccPage
+     * -----------------------------------------------------------
+     *  Т.к ответ от api может содержать и другие компании, то
+     * нужно фильтровать записи по названию аккаунта, при-
+     * ложения от нужной нам компании отправляются на
+     * обработку методом parseSingleApp
+     * ----------------------------------------------------------- */
     protected function processAccPage($response)
     {
         $data = json_decode($response);

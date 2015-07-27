@@ -158,16 +158,15 @@ Modal::end();
 
 <?php $this->registerJs("
             $('.activity-edit-link').click(function() {
-    $.get(
-        '" . Url::toRoute(['update']) . "',
-        {
-            id: $(this).closest('tr').data('key')
-        },
-        function (data) {
-            $('.modal-body').html(data);
-            $('#activity-modal').modal();
-        }
-    );
-});
+                $.get(
+                    '" . Url::toRoute(['update']) . "',
+                    {
+                           id: $(this).closest('tr').data('key')
+                    },
+                     function (data) {
+                           $('.modal-body').html(data);
+                     }
+                );
+            });
 ");
 

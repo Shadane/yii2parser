@@ -31,7 +31,13 @@
     "kartik-v/yii2-widgets": "*",
     "kartik-v/yii2-detail-view": "dev-master",
     "kartik-v/yii2-popover-x": "*",
-    "kartik-v/yii2-widget-alert": "*"
+    "kartik-v/yii2-widget-alert": "*",
+    "fxp/composer-asset-plugin": "^1.0",
+    "bower-asset/readmore.js": "*",
+    "bower-asset/readmore": "^2.0",
+    "drmabuse/yii2-slick-carousel": "dev-master",
+    "evgeniyrru/yii2-slick": "*",
+    "2amigos/yii2-gallery-widget": "*"
   },
   "repositories":[ {
     "type": "package",

@@ -89,3 +89,20 @@ a.desc:after {
     padding: 10px 20px;
     margin: 0 0 15px 0;
 }
+.url-icon img {
+    max-width: 60px;
+}
+
+.carousel-inner > .item > img {
+    margin: 0 auto;
+    max-height: 480px;
+}
+
+.container-fluid {
+    padding: 1% 5%;
+}
+
+/*.readmore {*/
+    /*height: 5em;*/
+/*}*/
+

@@ -6,12 +6,13 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $searchModel,
     'columns' => $gridColumns,
+    'id' => 'myGrid',
     'containerOptions' => ['style' => 'overflow: auto'], // only set when $responsive = false
     'headerRowOptions' => ['class' => 'kartik-sheet-style'],
     'filterRowOptions' => ['class' => 'kartik-sheet-style'],
-    'pjax' => true, // pjax is set to always true for this demo
     // set your toolbar
     'toolbar' => $gridToolbar,
+    'pjax' => false,
     // parameters from the demo form
     'bordered' => true,
     'striped' => true,

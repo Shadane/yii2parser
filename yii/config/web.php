@@ -18,6 +18,18 @@ $config = [
         ]
     ],
     'components' => [
+//        'i18n' => [
+//            'translations' => [
+//                'app*' => [
+//                    'class' => 'yii\i18n\PhpMessageSource',
+//                    //'basePath' => '@app/messages',
+//                    //'sourceLanguage' => 'en-US',
+//                    'fileMap' => [
+//                        'app' => 'app.php',
+//                    ],
+//                ],
+//            ],
+//        ],
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'ZLmjfprLK4lbr-bUArDQivZDoykLwkM4',
@@ -62,6 +74,17 @@ if (YII_ENV_DEV) {
     $config['modules']['gii'] = [
         'class' => 'yii\gii\Module',
         'allowedIPs' => ['127.0.0.1', '::1', '192.168.56.1'],
+    ];
+}
+
+if (YII_ENV_DEV) {
+    $config['components']['log']['targets'][] = [
+        'class' => 'yii\log\FileTarget',
+        'levels' => ['info'],
+        'categories' => ['parseInfo'],
+        'logFile' => '@app/runtime/logs/parseinfo.log',
+        'maxFileSize' => 1024 * 2,
+        'maxLogFiles' => 20,
     ];
 }
 

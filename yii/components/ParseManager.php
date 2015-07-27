@@ -21,6 +21,13 @@ class ParseManager
     {
         return $this->error;
     }
+
+    /**
+     * На входе - строка с названием маркета
+     * На выходе - объект парсера
+     * @param $marketName
+     * @return AmazonParser|AppleParser|WindowsphoneParser|False
+     */
     private static function createParserByName($marketName)
     {
         switch($marketName){
@@ -39,15 +46,25 @@ class ParseManager
         }
     }
 
+    /**
+     * В этом методе непосредственно происходит сохранение приложения в базу данных.
+     * @param $app = массив с аттрибутами приложения
+     * @param $model = обьект приложения для обновления(либо null, в этом случае создастся новое)
+     */
     private function internalSave($app, $model)
     {
-        $model = ($model)? $model:new App();
+        $model = ($model)? $model : new App();
         $model->attributes = $app;
         if (!$model->save()){
-            $this->error[] = $model->getErrors();
+            $this->error[$model->title] = $model->getErrors();
         }
     }
 
+    /**
+     *
+     * @param $apps - массив, состоящий из массивов с полями приложений
+     * @param $updateEveryApp - boolean, если true, то из базы загружаются существующие приложения и обновляются.
+     */
     private function save($apps, $updateEveryApp)
     {
         foreach ($apps as $app)
@@ -88,6 +105,7 @@ class ParseManager
         $this->force = $force;
         $marketId = Market::findIdByName($marketName);
         $accounts = Account::findAll(['market_id'=>$marketId]);
+        print_r($accounts);
         foreach ($accounts as $acc)
         {
             $this->parseOrSkip($acc);

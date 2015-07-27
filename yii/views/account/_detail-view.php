@@ -1,7 +1,6 @@
 <?php
 use kartik\detail\DetailView;
-use yii\helpers\ArrayHelper;
-use app\models\Market;
+use app\models\OutputHelper;
 
 /* -----------------------------
  *   Атрибуты для DetailView
@@ -23,7 +22,7 @@ $attributes = [
         'format' => 'raw',
         'value' => $model->market->name,
         'type' => DetailView::INPUT_DROPDOWN_LIST,
-        'items' => ArrayHelper::map(Market::find()->orderBy('id')->asArray()->all(), 'id', 'name'),
+        'items' => OutputHelper::mapModelList('market'),
 
     ],
 ];
