@@ -23,5 +23,6 @@ return [
     'Price' => 'Стоимость',
     '0' => 'Бесплатно',
     'free' => 'Бесплатно',
-    'бесплатные' => 'Бесплатно'
+    'бесплатные' => 'Бесплатно',
+    'Are you sure you want to delete this item? Parsed Applications for this account will be deleted as well' => 'Вы действительно хотите удалить Аккаунт и все принадлежащие ему приложения?'
 ];

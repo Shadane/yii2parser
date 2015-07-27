@@ -8,6 +8,7 @@ use phpQuery;
 
 abstract class BaseParser
 {
+
     /* --------------------------------------------------
      * Переменные $curl и $account тут для того, чтобы
      * не приходилось их передавать между методами
@@ -79,7 +80,7 @@ abstract class BaseParser
         $app['account_id'] = $this->account->id;
 
         $this->appPush($app);
-        Yii::info('grabbed app: '.$app['title'], 'parseInfo');
+        Yii::info('grabbed app: '.$app['title'].' - '.json_encode($app), 'parseInfo');
     }
 
     protected function getApps()

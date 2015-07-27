@@ -53,6 +53,7 @@ class ParseManager
      */
     private function internalSave($app, $model)
     {
+        $model = ($model)? $model:new App();
         $model->attributes = $app;
         if (!$model->save()){
             $this->error[$model->title] = $model->getErrors();
@@ -74,7 +75,7 @@ class ParseManager
             $model = ($updateEveryApp)? App::find()
                                 ->where(['title'=>$app['title'], 'account_id'=>$app['account_id'], 'market_id'=>$app['market_id']])
                                 ->one()
-                                : new App();
+                                : NULL;
             $this->internalSave($app, $model);
         }
     }

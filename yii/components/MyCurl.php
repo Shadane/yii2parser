@@ -3,6 +3,7 @@ namespace app\components;
 
 
 use linslin\yii2\curl\Curl;
+use Yii;
 
 class MyCurl extends Curl
 {
@@ -43,7 +44,7 @@ class MyCurl extends Curl
             $body = curl_exec($curl);
             $retry++;
         }
-
+//
         //check if curl was successful
         if ($body === false) {
             throw new Exception('curl request failed: ' . curl_error($curl) , curl_errno($curl));

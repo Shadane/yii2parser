@@ -104,7 +104,7 @@ $gridColumns = [
                     'class' => 'activity-delete-link',
                     'title' => Yii::t('yii', 'Delete'),
                     'data' => [
-                        'confirm' => Yii::t('yii', 'Are you sure you want to delete this item?'),
+                        'confirm' => Yii::t('app', 'Are you sure you want to delete this item? Parsed Applications for this account will be deleted as well'),
                         'method' => 'post',
                         'params' => ['custom_param' => true, 'id' => $key],
 

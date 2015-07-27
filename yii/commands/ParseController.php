@@ -33,7 +33,7 @@ class ParseController extends Controller
     /**
      * @param $marketName
      * В этом экшне создается и запускается парсменеджер.
-     * Также выводятся ошибки валидации если они есть.
+     * Также логируются ошибки валидации если они есть.
      */
     public function actionIndex($marketName)
     {

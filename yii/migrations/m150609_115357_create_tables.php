@@ -37,8 +37,8 @@ class m150609_115357_create_tables extends Migration
 //        $this->createIndex('name', '{{%category}}', 'name', true);
         $this->createTable('{{%app}}', [
             'id' => Schema::TYPE_PK,
-            'market_id' => Schema::TYPE_SMALLINT . ' unsigned NOT NULL',
-            'account_id' => Schema::TYPE_INTEGER . ' unsigned NOT NULL',
+            'market_id' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'account_id' => Schema::TYPE_INTEGER . ' NOT NULL',
             'title' => Schema::TYPE_STRING . ' NOT NULL',
             'price' => Schema::TYPE_STRING . ' NOT NULL',
             'url' => 'varchar(2000)' . ' NOT NULL',
@@ -46,6 +46,9 @@ class m150609_115357_create_tables extends Migration
             'url_img' => 'varchar(2000)' . ' NOT NULL',
             'description' => Schema::TYPE_TEXT . ' NOT NULL'
         ], $tableOptions);
+
+        $this->addForeignKey("account_ids", "{{%app}}", "account_id", "{{%account}}", "id", 'CASCADE');
+        $this->addForeignKey("market_ids", "{{%app}}", "market_id", "{{%market}}", "id", 'CASCADE');
     }
 
     public function safeDown()
