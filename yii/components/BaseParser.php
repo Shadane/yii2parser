@@ -44,14 +44,14 @@ abstract class BaseParser
     {
         $this->account = $account;
         $link = $this->getLink();
-        echo $link;
         do {
             $html = $this->curl->get($link);
+            Yii::info('['.$account->name.'] : start processing link: '.$link, 'parseInfo');
 
             /*  Запускаем обработку страницы аккаунту. processAccPage возвращает
                  ссылку на следующую страницу( либо ссылку либо false в $link)    */
             $link = $this->processAccPage($html);
-            echo "\n".'next page is: ' . $link;
+
             /* do while будет выполняться до тех пор пока создается новая ссылка из метода processAccPage */
         } while ($link);
         return $this->getApps();
@@ -69,7 +69,7 @@ abstract class BaseParser
         $app = [];
         phpQuery::newDocument($appHtml);
 
-        echo "\n".'processing: '.$app['title'] = pq(static::SELECTOR_TITLE)->text();
+        $app['title'] = pq(static::SELECTOR_TITLE)->text();
         $app['description'] =trim(pq(static::SELECTOR_DESC)->contents());
         $app['price'] = trim(pq(static::SELECTOR_PRICE)->text());
         $app['url'] = $appLink;

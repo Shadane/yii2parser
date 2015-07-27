@@ -53,7 +53,6 @@ class ParseManager
      */
     private function internalSave($app, $model)
     {
-        $model = ($model)? $model : new App();
         $model->attributes = $app;
         if (!$model->save()){
             $this->error[$model->title] = $model->getErrors();
@@ -61,7 +60,10 @@ class ParseManager
     }
 
     /**
-     *
+     * Для каждого элемента в массиве Приложений в зависимости от флага updateEveryApp
+     * мы либо загружаем из базы данных приложение, либо передаем в эту переменную
+     * новый инстанс App. Затем модель и поля на сохранение отправляются в метод
+     * internalSave, где и происходит сохранение.
      * @param $apps - массив, состоящий из массивов с полями приложений
      * @param $updateEveryApp - boolean, если true, то из базы загружаются существующие приложения и обновляются.
      */
@@ -72,19 +74,22 @@ class ParseManager
             $model = ($updateEveryApp)? App::find()
                                 ->where(['title'=>$app['title'], 'account_id'=>$app['account_id'], 'market_id'=>$app['market_id']])
                                 ->one()
-                                : NULL;
+                                : new App();
             $this->internalSave($app, $model);
         }
     }
 
+    /**
+     * Если хоть одно приложение с таким аккаунтом уже существует,
+     * то проверяем опцию force, если оно =false, то пропускаем
+     * текущий аккаунт, но если force = true, то запускаем
+     * парс и обновление всех записей в каждом аккаунте.
+     *
+     * Это нужно, к примеру, если мы хотим, чтобы только свежедобавленный маркет обрабатывался.
+     * @param $acc
+     */
     private function parseOrSkip($acc)
     {
-        /*
-         * Если хоть одно приложение с таким аккаунтом уже существует,
-         * то проверяем опцию force, если оно =false, то пропускаем
-         * текущий аккаунт, но если force = true, то запускаем
-         * парс и обновление всех записей в каждом аккаунте.
-         */
         $updateEveryAppFlag = false;
 
         if (App::findOne(['account_id' => $acc->id])){
@@ -99,13 +104,22 @@ class ParseManager
 
     }
 
+    /**
+     * Создается парсер по параметру $marketName,
+     * Force(принудительная перезапись, boolean) - кладется в свойство объекта ParseManager
+     * По имени маркета находится его ID в базе данных
+     * Находим все аккаунты по этому ID маркета
+     * Для каждого аккаунта запускаем метод parseOrSkip
+     * @param $marketName
+     * @param $force
+     */
     public function manageParsingByMarket($marketName, $force)
     {
         $this->parser = static::createParserByName($marketName);
         $this->force = $force;
         $marketId = Market::findIdByName($marketName);
         $accounts = Account::findAll(['market_id'=>$marketId]);
-        print_r($accounts);
+
         foreach ($accounts as $acc)
         {
             $this->parseOrSkip($acc);

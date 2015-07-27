@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use Yii;
 
 class AppleParser extends BaseParser
 {
@@ -35,6 +36,7 @@ class AppleParser extends BaseParser
         $app['account_id'] = $this->account->id;
 
         $this->appPush($app);
+        Yii::info('grabbed app: '.$app['title'], 'parseInfo');
     }
     /** -----------------------------------------------------------
      *                   processAccPage

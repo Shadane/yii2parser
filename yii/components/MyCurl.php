@@ -39,6 +39,7 @@ class MyCurl extends Curl
 //Добавленный мной кусок кода, который отвечает за попытки перезапроса при ошибке соединения
         $retry = 0;
         while(curl_errno($curl) == 28 && $retry < 5){
+            Yii::info('Curl request timeout(errno 28): '.(5-$retry).' retries left', 'parseInfo');
             $body = curl_exec($curl);
             $retry++;
         }

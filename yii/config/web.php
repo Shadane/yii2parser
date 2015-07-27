@@ -77,15 +77,6 @@ if (YII_ENV_DEV) {
     ];
 }
 
-if (YII_ENV_DEV) {
-    $config['components']['log']['targets'][] = [
-        'class' => 'yii\log\FileTarget',
-        'levels' => ['info'],
-        'categories' => ['parseInfo'],
-        'logFile' => '@app/runtime/logs/parseinfo.log',
-        'maxFileSize' => 1024 * 2,
-        'maxLogFiles' => 20,
-    ];
-}
+
 
 return $config;

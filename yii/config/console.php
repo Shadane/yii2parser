@@ -18,11 +18,25 @@ return [
             'class' => 'yii\caching\FileCache',
         ],
         'log' => [
+            'flushInterval' => 1,
             'targets' => [
                 [
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning'],
                 ],
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['info'],
+                    'logVars' => [],
+                    'categories' => ['parseInfo'],
+                    'logFile' => '@app/runtime/logs/parse.log',
+                    'maxFileSize' => 1024 * 2,
+                    'maxLogFiles' => 20,
+                    'exportInterval' => 1,
+                    'prefix' => function ($message) {
+                        return "[message]";
+                    }
+                ]
             ],
         ],
         'db' => $db,

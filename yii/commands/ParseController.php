@@ -11,6 +11,7 @@ use app\components\ParseManager;
 use yii\console\Controller;
 use phpQuery;
 use linslin\yii2\curl;
+use Yii;
 
 /**
  * This command echoes the first argument that you have entered.
@@ -39,7 +40,7 @@ class ParseController extends Controller
         $parseManager = new ParseManager();
         $parseManager->manageParsingByMarket($marketName, $this->force);
         if ($errs = $parseManager->getError()){
-            print_r($errs);
+            Yii::info($errs, 'parseInfo');
         }
     }
 
