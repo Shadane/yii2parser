@@ -10,7 +10,6 @@ namespace app\commands;
 use app\components\ParseManager;
 use yii\console\Controller;
 use phpQuery;
-use linslin\yii2\curl;
 use Yii;
 
 /**

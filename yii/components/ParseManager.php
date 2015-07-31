@@ -7,6 +7,10 @@ use app\models\Account;
 use app\models\Market;
 use app\models\App;
 
+use app\components\parser\AmazonParser;
+use app\components\parser\WindowsphoneParser;
+use app\components\parser\AppleParser;
+
 /**
  * Class ParseManager
  * @package app\components
@@ -68,7 +72,7 @@ class ParseManager
      * @param $apps - массив, состоящий из массивов с полями приложений
      * @param $updateEveryApp - boolean, если true, то из базы загружаются существующие приложения и обновляются.
      */
-    private function save($apps, $updateEveryApp)
+    protected function save($apps, $updateEveryApp)
     {
         foreach ($apps as $app)
         {
@@ -89,7 +93,7 @@ class ParseManager
      * Это нужно, к примеру, если мы хотим, чтобы только свежедобавленный маркет обрабатывался.
      * @param $acc
      */
-    private function parseOrSkip($acc)
+    protected function parseOrSkip($acc)
     {
         $updateEveryAppFlag = false;
 

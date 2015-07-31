@@ -24,5 +24,6 @@ return [
     '0' => 'Бесплатно',
     'free' => 'Бесплатно',
     'бесплатные' => 'Бесплатно',
-    'Are you sure you want to delete this item? Parsed Applications for this account will be deleted as well' => 'Вы действительно хотите удалить Аккаунт и все принадлежащие ему приложения?'
+    'Are you sure you want to delete this item? Parsed Applications for this account will be deleted as well' => 'Вы действительно хотите удалить Аккаунт и все принадлежащие ему приложения?',
+    'pricing information not available.' => 'Информация о цене недоступна'
 ];

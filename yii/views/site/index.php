@@ -5,47 +5,22 @@ $this->title = 'My Yii Application';
 <div class="site-index">
 
     <div class="jumbotron">
-        <h1>Congratulations!</h1>
+        <h1>Добро Пожаловать!</h1>
+        <h2>Как спарсить аккаунт?</h2>
 
-        <p class="lead">You have successfully created your Yii-powered application.</p>
+        <p class="lead">Добавьте аккаунт в административной панели</p>
+        <p class="lead">Запустите парс из консоли: <code>php yii parse 'marketname'</code></p>
+        <p class="lead">Если вы хотите обновить все приложения во всех аккаунтах маркета, то запустите <code>php yii parse 'marketname' --force</code> </p>
+        <p class="lead">Если опция <code>--force</code> отключена, то проверяется наличие хотябы одного приложения у аккаунта,
+            и если оно есть, то этот аккаунт пропускается, а если его нет - значит это новый аккаунт и в него парсятся
+            приложения. Со включенной опцией каждое приложение в каждом аккаунте насильно обновляется. </p>
+        <p class="lead">Возможные 'marketname' по дефолту: 'apple', 'windowsphone', 'amazon'</p>
 
-        <p><a class="btn btn-lg btn-success" href="http://www.yiiframework.com">Get started with Yii</a></p>
-    </div>
 
-    <div class="body-content">
+        <p class="lead">Просмотреть логи парсинга можно по адресу yii/runtime/logs/parse.log, а также <?=\kartik\helpers\Html::a('Тут', ['logs'])?></p>
 
-        <div class="row">
-            <div class="col-lg-4">
-                <h2>Heading</h2>
-
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
-
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/doc/">Yii Documentation &raquo;</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
-
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
-
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/forum/">Yii Forum &raquo;</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
-
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
-
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/extensions/">Yii Extensions &raquo;</a></p>
-            </div>
-        </div>
 
     </div>
-</div>
+    </div>
+
+

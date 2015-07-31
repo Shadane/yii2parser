@@ -4,9 +4,24 @@ namespace app\components;
 
 use linslin\yii2\curl\Curl;
 use Yii;
+use yii\base\Exception;
+use yii\helpers\Json;
+use yii\web\HttpException;
 
 class MyCurl extends Curl
 {
+    protected $_defaultOptions = array(
+        CURLOPT_USERAGENT      => 'Yii2-Curl-Agent',
+        CURLOPT_TIMEOUT        => 30,
+        CURLOPT_CONNECTTIMEOUT => 30,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HEADER         => false,
+    );
+
+    public function get($url, $raw = true)
+    {
+        return $this->_httpRequest('GET', $url, $raw);
+    }
     private function _httpRequest($method, $url, $raw = false)
     {
         //Init
@@ -34,9 +49,14 @@ class MyCurl extends Curl
         /**
          * proceed curl
          */
+
         $curl = curl_init($url);
         curl_setopt_array($curl, $this->getOptions());
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+           '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />'
+        ));
         $body = curl_exec($curl);
+//        Yii::info('Curl body: '. $body, 'parseInfo');
 //Добавленный мной кусок кода, который отвечает за попытки перезапроса при ошибке соединения
         $retry = 0;
         while(curl_errno($curl) == 28 && $retry < 5){

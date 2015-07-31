@@ -7,7 +7,6 @@ use app\models\App;
 use app\models\AppSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
 /**
  * AppController implements the CRUD actions for App model.

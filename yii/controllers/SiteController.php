@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use Yii;
 use yii\filters\AccessControl;
+use yii\helpers\Url;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
@@ -14,17 +15,6 @@ use app\components\AmazonParser;
 
 class SiteController extends Controller
 {
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'logout' => ['post'],
-                ],
-            ],
-        ];
-    }
 
     public function actions()
     {
@@ -38,11 +28,10 @@ class SiteController extends Controller
     public function actionIndex()
     {
         return $this->render('index');
-
     }
 
-    public function actionAdmin()
-    {
-        return $this->render('admin');
+    public function actionLogs(){
+        return $this->redirect(Url::to('/yii/runtime/logs/'));
     }
+
 }

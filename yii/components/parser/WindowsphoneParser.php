@@ -1,10 +1,10 @@
 <?php
 
-namespace app\components;
+namespace app\components\parser;
 
 use phpQuery;
 
-class WindowsphoneParser extends BaseParser
+class WindowsphoneParser extends PQParser
 {
     const ACC_LINK = '/ru-RU/store/publishers?publisherId=PLACEHOLDER';
     const BASE_URL = 'www.windowsphone.com';
@@ -18,15 +18,15 @@ class WindowsphoneParser extends BaseParser
     const SELECTOR_IMAGES = 'a:has(img[itemprop="screenshot"])';
 
 
-    /* -----------------------------------------------------------
+    /** -----------------------------------------------------------
      *                   parseImages
      * -----------------------------------------------------------
-     *  По селектору находим картинки и записываем их в массив
+     *  По селектору находим картинки и возвращаем их запросчику
      * ----------------------------------------------------------- */
-    protected function parseImages()
+    protected function parseImages($data)
     {
         $images = [];
-        foreach (pq(static::SELECTOR_IMAGES) as $img)
+        foreach (pq($data)->find(static::SELECTOR_IMAGES) as $img)
         {
             $images[] = pq($img)->attr('href');
         }

@@ -45,8 +45,10 @@ $settings = [
     'buttonContainer' => [
         'class' => 'text-center'
     ],
-    'condensed' => false,
-    'responsive' => false,
+    'buttons2' =>'{save}   {reset}   {delete}',
+    'condensed' => true,
+    'responsive' => true,
+    'bordered' => false,
     'hover' => true,
     'hAlign'=>'center',
     'vAlign'=>'middle',
