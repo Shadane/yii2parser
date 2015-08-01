@@ -60,6 +60,9 @@ abstract class BaseParser
      * -------------------------------------------------- */
     protected $apps = [];
 
+    /* счетчик приложений в applist */
+    protected $listCount = 0;
+
     /*
      * Блок абстрактных методов, в которых потом будут по селекторам доставаться поля приложений
      */
@@ -86,6 +89,10 @@ abstract class BaseParser
     /* В этом методе будет обрабатываться список приложений с аккаунта на сайте */
     abstract protected function processAppList($appList);
 
+    function className(){
+        return get_called_class();
+    }
+
     /* При создании парсеров будет создаваться объект Curl */
     public function __construct()
     {
@@ -104,12 +111,19 @@ abstract class BaseParser
         return $this->apps;
     }
 
+    /* Достаем количество приложений в изначальном списке в аккаунте */
+    public function getListCount()
+    {
+        return $this->listCount;
+    }
+
     /* Создается объект MyCurl и прописываются настройки */
     protected function curlInit()
     {
         $this->curl = new MyCurl();
         $this->curl->setOption(CURLOPT_FOLLOWLOCATION, true);
     }
+
 
 
     /** --------------------------------------------------------
@@ -119,12 +133,18 @@ abstract class BaseParser
      * ссылку для парсинга методом getLink(), и запускаем
      * cUrl. Дальше обрабатываем полученую страницу,
      * и возвращаем поля полученных приложений.
+     * Также чистим память и обнуляем переменные.
      * -------------------------------------------------------- */
     public function parseByAccount($account)
     {
+        $this->apps = [];
+        $this->listCount = 0;
+
         $this->account = $account;
         $link = $this->getLink();
         do {
+
+
             /*  Запускаем обработку страницы аккаунту. processAccPage возвращает
                  ссылку на следующую страницу( либо ссылку либо false в $link)    */
             $link = $this->processAccPage($link);
@@ -172,10 +192,17 @@ abstract class BaseParser
      * ссылку на следующюю страницу, и запускает обработку
      * полученного списка приложений. Возвращает ссылку
      * на следующую страницу.
+     *
+     * Если списка приложений не получает, то возвращает false
+     * в метод parseByAccount, и парсинг текущего аккаунта
+     * завершается.
      * ----------------------------------------------------------- */
     protected function processAccPage($link)
     {
-        $appList = $this->getApplist($link);
+        if (!$appList = $this->getApplist($link)){
+            return false;
+        }
+        $this->listCount += count($appList);
         $link = $this->getNextPageLink();
         $this->processAppList($appList);
 
@@ -192,7 +219,7 @@ abstract class BaseParser
     {
         foreach ($this->app as $fieldName => $field) {
             if (!$field) {
-                Yii::info('Parsing failure: ' . $fieldName . ' not Found. ' . (5 - $this->retry) . ' retries left. Retrying in 2 seconds', 'parseInfo');
+                Yii::info('[Parsing failure: EMPTY FIELD >>>' . $fieldName . '<<<]. Retrying(' . (5 - $this->retry) . ') in 2 seconds', 'parseInfo');
                 sleep(2);
                 return false;
             }
@@ -211,15 +238,22 @@ abstract class BaseParser
     {
         /* также при каждом запросе выставляется новый useragent, точно проверить сложно,
         но после этого перестало кидать на страницу captcha */
-        $this->curl->setOption(CURLOPT_USERAGENT, 'sdfsdfsd'.mt_rand(0,1231231));
+        $this->retry = 0;
+        do{
+            $this->retry++;
+            $this->curl->setOption(CURLOPT_USERAGENT, 'rterr'.mt_rand(0,1231231));
+            if ($html = $this->curl->get($link)) {
+                Yii::info('[' . $this->account->name . ',  code: '.$this->curl->responseCode.'] : start processing link: ' . $link, 'parseInfo');
+                return $this->responseDecode($html);
+            }else {
+                 Yii::error('[' . $this->account->name .  ',  code: '.$this->curl->responseCode.' . Retrying('.(5-$this->retry).') in 2 sec.] : ERROR processing link: ' . $link, 'parseInfo');
+                 sleep(2);
+            }
+        }while(!$html && $this->retry < 5);
 
-        if ($html = $this->curl->get($link)) {
-//            Yii::info(($html),'parseInfo');
-            Yii::info('[' . $this->account->name . ',  code: '.$this->curl->responseCode.'] : start processing link: ' . $link, 'parseInfo');
-            return $this->responseDecode($html);
-        } else {
-            Yii::info('[' . $this->account->name . '] : ERROR processing link: ' . $link, 'parseInfo');
-        }
+        Yii::error('[FAILED: RESPONSE EMPTY][' . $this->account->name .  ',  code: '.$this->curl->responseCode.' ]', 'parseInfo');
+        $this->retry = 0;
+        return false;
     }
 
     /**
@@ -232,7 +266,9 @@ abstract class BaseParser
     {
         $this->retry = 0;
         do {
-            $data = $this->processUrl($link);
+            if(!$data = $this->processUrl($link)) {
+                return false;
+            }
             $appList = $this->parseAppList($data);
             $this->retry++;
         } while (!$appList && $this->retry < 5);

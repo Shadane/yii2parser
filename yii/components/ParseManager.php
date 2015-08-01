@@ -20,10 +20,20 @@ class ParseManager
     private $error;
     private $parser;
     private $force = false;
+    private $totalCount = 0;
+
+    static function className(){
+        return get_called_class();
+    }
 
     public function getError()
     {
         return $this->error;
+    }
+
+    public function timer(){
+        $time = explode(' ', microtime());
+        return $time[0]+$time[1];
     }
 
     /**
@@ -61,7 +71,9 @@ class ParseManager
         $model->attributes = $app;
         if (!$model->save()){
             $this->error[$model->title] = $model->getErrors();
+            return false;
         }
+            return true;
     }
 
     /**
@@ -74,14 +86,20 @@ class ParseManager
      */
     protected function save($apps, $updateEveryApp)
     {
+        $savedCount = 0;
         foreach ($apps as $app)
         {
             $model = ($updateEveryApp)? App::find()
                                 ->where(['title'=>$app['title'], 'account_id'=>$app['account_id'], 'market_id'=>$app['market_id']])
                                 ->one()
                                 : NULL;
-            $this->internalSave($app, $model);
+           if ($savedOrNot =  $this->internalSave($app, $model)){
+               $savedCount += 1;
+               $this->totalCount += 1;
+           }
         }
+        Yii::info('[Saved : '.$savedCount.'][Total '.$this->totalCount.' apps saved]','parseInfo');
+
     }
 
     /**
@@ -105,7 +123,8 @@ class ParseManager
         }
 
         $apps = $this->parser->parseByAccount($acc);
-        return $this->save($apps, $updateEveryAppFlag);
+        Yii::info('[Account: '.$acc->name.' ::: '.count($apps).' apps parsed ::: html had '.$this->parser->getListCount().' apps to parse ]','parseInfo');
+        $this->save($apps, $updateEveryAppFlag);
 
     }
 
@@ -125,10 +144,14 @@ class ParseManager
         $marketId = Market::findIdByName($marketName);
         $accounts = Account::findAll(['market_id'=>$marketId]);
 
+        $beginTime = $this->timer();
         foreach ($accounts as $acc)
         {
+            Yii::info('[Account start: '.$acc->name.']','parseInfo');
             $this->parseOrSkip($acc);
+            Yii::info('[Account done: '.$acc->name.']','parseInfo');
         }
+        Yii::info('[FINISH] [Took : '.round($this->timer() - $beginTime,6).' seconds]','parseInfo');
 
 
     }

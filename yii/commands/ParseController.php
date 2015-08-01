@@ -36,7 +36,12 @@ class ParseController extends Controller
      */
     public function actionIndex($marketName)
     {
+        Yii::info('[START]','parseInfo');
+
         $parseManager = new ParseManager();
+
+        Yii::info('['.$this->className().'] : '.$parseManager::className().' created, starting [Market : '.$marketName.'] parse','parseInfo');
+
         $parseManager->manageParsingByMarket($marketName, $this->force);
         if ($errs = $parseManager->getError()){
             Yii::info($errs, 'parseInfo');

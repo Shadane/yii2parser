@@ -26,7 +26,7 @@ return [
                 ],
                 [
                     'class' => 'yii\log\FileTarget',
-                    'levels' => ['info'],
+                    'levels' => ['info', 'error', 'warning'],
                     'logVars' => [],
                     'categories' => ['parseInfo'],
                     'logFile' => '@app/runtime/logs/parse.log',
@@ -34,7 +34,7 @@ return [
                     'maxLogFiles' => 20,
                     'exportInterval' => 1,
                     'prefix' => function ($message) {
-                        return "[message]";
+                        return "[]";
                     }
                 ]
             ],

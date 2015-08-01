@@ -5,5 +5,5 @@ return [
     'dsn' => 'mysql:host=localhost;dbname=yii_parsed',
     'username' => 'root',
     'password' => '123',
-    'charset' => 'utf8'
+    'charset' => 'UTF8'
 ];
