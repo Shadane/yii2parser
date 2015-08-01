@@ -97,11 +97,11 @@ abstract class JsonParser extends \app\components\parser\BaseParser
             if ($app->artistName !== $this->account->name) {
                 continue;
             }
-            $this->retry = 0;
+            $retry = 0;
             do {
                 $this->parseSingleApp($app);
-                $this->retry++;
-            } while (!$this->checkIntegrity() && $this->retry < 5);
+                $retry++;
+            } while (!$this->checkIntegrity($retry) && $retry < $this->maxRetry);
             $this->appPush($this->app);
 
         }

@@ -47,7 +47,7 @@ abstract class BaseParser
      * Переменные $curl и $account тут для того, чтобы
      * не приходилось их передавать между методами
      * -------------------------------------------------- */
-    protected $retry = 0;
+    protected $maxRetry = 10;
     protected $curl;
     protected $account;
     /* в переменную $app записываются поля на сохранение в БД */
@@ -215,11 +215,11 @@ abstract class BaseParser
      * звращает false, иначе true.
      * @return bool
      */
-    protected function checkIntegrity()
+    protected function checkIntegrity($retry)
     {
         foreach ($this->app as $fieldName => $field) {
             if (!$field) {
-                Yii::info('[Parsing failure: EMPTY FIELD >>>' . $fieldName . '<<<]. Retrying(' . (5 - $this->retry) . ') in 2 seconds', 'parseInfo');
+                Yii::info('[Parsing failure: EMPTY FIELD >>>' . $fieldName . '<<<]. Retrying(' . ($this->maxRetry - $retry) . ') in 2 seconds', 'parseInfo');
                 sleep(2);
                 return false;
             }
@@ -238,21 +238,20 @@ abstract class BaseParser
     {
         /* также при каждом запросе выставляется новый useragent, точно проверить сложно,
         но после этого перестало кидать на страницу captcha */
-        $this->retry = 0;
+        $retry = 0;
         do{
-            $this->retry++;
+            $retry++;
             $this->curl->setOption(CURLOPT_USERAGENT, 'rterr'.mt_rand(0,1231231));
             if ($html = $this->curl->get($link)) {
                 Yii::info('[' . $this->account->name . ',  code: '.$this->curl->responseCode.'] : start processing link: ' . $link, 'parseInfo');
                 return $this->responseDecode($html);
             }else {
-                 Yii::error('[' . $this->account->name .  ',  code: '.$this->curl->responseCode.' . Retrying('.(5-$this->retry).') in 2 sec.] : ERROR processing link: ' . $link, 'parseInfo');
+                 Yii::error('[' . $this->account->name .  ',  code: '.$this->curl->responseCode.' . Retrying('.($this->maxRetry - $retry).') in 2 sec.] : ERROR processing link: ' . $link, 'parseInfo');
                  sleep(2);
             }
-        }while(!$html && $this->retry < 5);
+        }while(!$html && $retry < $this->maxRetry);
 
         Yii::error('[FAILED: RESPONSE EMPTY][' . $this->account->name .  ',  code: '.$this->curl->responseCode.' ]', 'parseInfo');
-        $this->retry = 0;
         return false;
     }
 
@@ -264,14 +263,14 @@ abstract class BaseParser
      */
     private function getAppList($link)
     {
-        $this->retry = 0;
+        $retry = 0;
         do {
             if(!$data = $this->processUrl($link)) {
                 return false;
             }
             $appList = $this->parseAppList($data);
-            $this->retry++;
-        } while (!$appList && $this->retry < 5);
+            $retry++;
+        } while (!$appList && $retry < $this->maxRetry);
 
         return $appList;
     }

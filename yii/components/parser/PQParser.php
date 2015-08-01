@@ -110,7 +110,7 @@ abstract class PQParser extends BaseParser
     protected function processAppList($appList)
     {
         foreach ($appList as $app) {
-            $this->retry = 0;
+            $retry = 0;
             do {
                 $appLink = $this->parseUrl($app);
                 $this->app['url'] = UrlHelper::UrlEncodePath($appLink);
@@ -119,8 +119,8 @@ abstract class PQParser extends BaseParser
                 }
 
                 $this->parseSingleApp($data);
-                $this->retry++;
-            } while (!$this->checkIntegrity() && $this->retry < 5);
+                $retry++;
+            } while (!$this->checkIntegrity($retry) && $retry < $this->maxRetry);
             $this->appPush($this->app);
         }
         phpQuery::unloadDocuments();
