@@ -8,6 +8,7 @@
 namespace app\commands;
 
 use app\components\ParseManager;
+use app\components\streamhandle\StreamHandler;
 use yii\console\Controller;
 use phpQuery;
 use Yii;
@@ -48,8 +49,27 @@ class ParseController extends Controller
         }
     }
 
+    public function actionTest()
+    {
+        $handler =new StreamHandler();
+        $handler -> openProc(1,5);
+        $handler -> openProc(2,1);
+        $handler -> openProc(3,1);
+        $handler -> openProc(4,7);
+        sleep(6);
+        print_r($handler->eventListen());
+    }
+
     public function options($actionID)
     {
         return ['force'];
+    }
+
+    public function actionPage($url, $accID){
+        $time = explode(' ', microtime());
+        $time = $time[0]+$time[1];
+        $parseManager = new ParseManager();
+//        Yii::info('starting page in a new process','parseInfo');
+        $parseManager->manageParsingPage($url, $accID, $time);
     }
 }

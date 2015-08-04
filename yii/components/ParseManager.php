@@ -64,6 +64,7 @@ class ParseManager
      * В этом методе непосредственно происходит сохранение приложения в базу данных.
      * @param $app = массив с аттрибутами приложения
      * @param $model = обьект приложения для обновления(либо null, в этом случае создастся новое)
+     * @return bool
      */
     private function internalSave($app, $model)
     {
@@ -89,6 +90,7 @@ class ParseManager
         $savedCount = 0;
         foreach ($apps as $app)
         {
+//            echo "\n\r".'Time Elapsed:'.$app['timeBeforeRequest'];
             $model = ($updateEveryApp)? App::find()
                                 ->where(['title'=>$app['title'], 'account_id'=>$app['account_id'], 'market_id'=>$app['market_id']])
                                 ->one()
@@ -122,9 +124,26 @@ class ParseManager
             $updateEveryAppFlag = true;
         }
 
-        $apps = $this->parser->parseByAccount($acc);
-        Yii::info('[Account: '.$acc->name.' ::: '.count($apps).' apps parsed ::: html had '.$this->parser->getListCount().' apps to parse ]','parseInfo');
-        $this->save($apps, $updateEveryAppFlag);
+        $this->parseByAccPage($acc, $updateEveryAppFlag);
+
+
+    }
+
+    private function parseByAccPage($acc, $updateEveryAppFlag){
+        $this->parser->setAccount($acc);
+        $link = $this->parser->getLink();
+        do{
+            $appList = $this->parser->processAccPage($link);
+            $link = $this->parser->getNextPageLink();
+            if($apps = $this->parser->processAppList($appList)){
+
+                $this->save($apps, $updateEveryAppFlag);
+            }
+        }while($link);
+            Yii::info('[Account: html had '.$this->parser->getListCount().' apps to parse ]','parseInfo');
+            if($apps = $this->parser->getResult()){
+                $this->save($apps, $updateEveryAppFlag);
+            }
 
     }
 
@@ -154,5 +173,12 @@ class ParseManager
         Yii::info('[FINISH] [Took : '.round($this->timer() - $beginTime,6).' seconds]','parseInfo');
 
 
+    }
+    public function manageParsingPage($url, $accID, $time){
+
+        $acc = Account::findOne($accID);
+        $this->parser = static::createParserByName($acc->market->name);
+        $apps = $this->parser->processPage($url, $acc, $time);
+        echo serialize($apps);
     }
 }

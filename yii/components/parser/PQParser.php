@@ -2,12 +2,15 @@
 
 namespace app\components\parser;
 
+use app\components\streamhandle\StreamHandler;
 use Yii;
 use phpQuery;
 use app\models\UrlHelper;
 
 abstract class PQParser extends BaseParser
 {
+    private $package = 1;
+    private $streamer;
 
     /* Следующие константы реализовывать в парсере определенного сайта */
 
@@ -18,6 +21,10 @@ abstract class PQParser extends BaseParser
      *            abstract const SELECTOR_NEXTPAGE;
      * ------------------------------------------------------- */
 
+    public function __construct(){
+        parent::__construct();
+        $this->streamer = new StreamHandler();
+    }
 
 
     /**
@@ -27,6 +34,10 @@ abstract class PQParser extends BaseParser
     protected function parseTitle($data)
     {
         return pq($data)->find(static::SELECTOR_TITLE)->text();
+    }
+
+    public function getStreamer(){
+        return $this->streamer;
     }
 
     /**
@@ -76,7 +87,7 @@ abstract class PQParser extends BaseParser
 
     protected function responseDecode($html)
     {
-        return phpQuery::newDocumentHTML($html,'UTF-8');
+        return phpQuery::newDocumentHTML($html, 'utf-8');
     }
 
  /* -----------------------------------------------------------
@@ -86,13 +97,18 @@ abstract class PQParser extends BaseParser
  *  и если да, то возвращает ссылку на нее, если нет, то
  *  возвращает false
  * ----------------------------------------------------------- */
-    protected function getNextPageLink()
+    public function getNextPageLink()
     {
         if (!$nextPage = pq(static::SELECTOR_NEXTPAGE)->attr('href')) {
             return false;
         }
 
         return static::BASE_URL . $nextPage;
+    }
+
+    public function getResult(){
+        $this->streamer->waitToFinishAll();
+        return $this->streamer->getResult();
     }
 
 
@@ -107,23 +123,50 @@ abstract class PQParser extends BaseParser
      * @param $appList
      * @return bool
      */
-    protected function processAppList($appList)
+    public function processAppList($appList)
     {
+        $package=[];
         foreach ($appList as $app) {
-            $retry = 0;
-            do {
-                $appLink = $this->parseUrl($app);
-                $this->app['url'] = UrlHelper::UrlEncodePath($appLink);
-                if (!$data = $this->processUrl($this->app['url'])){
-                    continue;
-                }
-
-                $this->parseSingleApp($data);
-                $retry++;
-            } while (!$this->checkIntegrity($retry) && $retry < $this->maxRetry);
-            $this->appPush($this->app);
+            $appUrl = $this->parseUrl($app);
+            $package[] = UrlHelper::UrlEncodePath($appUrl);
+            if (   (count($package) === $this->package)){
+                $this->streamer->runStream($package, $this->account->id);
+                $package = [];
+            }
+        }
+        if($package){
+            $this->streamer->runStream($package, $this->account->id);
         }
         phpQuery::unloadDocuments();
+        return $this->streamer->getResult();
+    }
+
+
+
+    public function processPage($url, $acc, $time){
+
+        $this->account = $acc;
+        $urlArr = explode(',',$url);
+        foreach($urlArr as $appUrl) {
+            $this->app['url'] = $appUrl;
+//        $timeTwo = explode(' ', microtime());
+//        $timeTwo = $timeTwo[0]+$timeTwo[1];
+//        $this->app['timeBeforeRequest'] = $timeTwo - $time ;
+            $this->processApp();
+            $this->appPush($this->app);
+        }
+        return $this->getApps();
+    }
+
+    protected function processApp(){
+        $retry=0;
+        do {
+            if (!$data = $this->processUrl($this->app['url'])){
+                return false;
+                }
+            $this->parseSingleApp($data);
+            $retry++;
+        } while (!$this->checkIntegrity($retry) && $retry < $this->maxRetry);
         return true;
     }
 

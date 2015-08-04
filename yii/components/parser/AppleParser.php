@@ -32,9 +32,13 @@ class AppleParser extends JsonParser
      * В API apple нет страниц, засим возвращаем false.
      * @return bool
      */
-    protected function getNextPageLink()
+    public function getNextPageLink()
     {
         return false;
+    }
+
+    public function getResult(){
+        return $this->getApps();
     }
 
 

@@ -91,7 +91,7 @@ abstract class JsonParser extends \app\components\parser\BaseParser
      * @param $appList
      * @return bool
      */
-    protected function processAppList($appList)
+    public function processAppList($appList)
     {
         foreach ($appList as $app) {
             if ($app->artistName !== $this->account->name) {
@@ -105,7 +105,6 @@ abstract class JsonParser extends \app\components\parser\BaseParser
             $this->appPush($this->app);
 
         }
-        return true;
     }
 
 }
