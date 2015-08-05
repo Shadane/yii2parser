@@ -2,9 +2,11 @@
 
 namespace app\components\parser;
 
+use app\models\Account;
 use Yii;
 use app\components\MyCurl;
 use phpQuery;
+use yii\base\Security;
 
 abstract class BaseParser
 {
@@ -47,8 +49,14 @@ abstract class BaseParser
      * Переменные $curl и $account тут для того, чтобы
      * не приходилось их передавать между методами
      * -------------------------------------------------- */
-    protected $maxRetry = 10;
+    protected $maxRetry = 20;
+    /**
+     * @var MyCurl
+     */
     protected $curl;
+    /**
+     * @var Account
+     */
     protected $account;
     /* в переменную $app записываются поля на сохранение в БД */
     protected $app;
@@ -176,10 +184,13 @@ abstract class BaseParser
      * ----------------------------------------------------------- */
     public function processAccPage($link)
     {
-        if (!$appList = $this->getApplist($link)){
-            return false;
-        }
-        $this->listCount += count($appList);
+        $retry=0;
+        do{
+            $appList = $this->getApplist($link);
+            $this->listCount += count($appList);
+            $retry++;
+        }while(!$appList && $this->maxRetry > $retry);
+        if(!$appList) {return false;}
         return $appList;
     }
 
@@ -194,6 +205,7 @@ abstract class BaseParser
         foreach ($this->app as $fieldName => $field) {
             if (!$field) {
                 Yii::info('[Parsing failure: EMPTY FIELD >>>' . $fieldName . '<<<]. Retrying(' . ($this->maxRetry - $retry) . ') ', 'parseInfo');
+//                sleep(1);
                 return false;
             }
         }
@@ -214,7 +226,9 @@ abstract class BaseParser
         $retry = 0;
         do{
             $retry++;
-            $this->curl->setOption(CURLOPT_USERAGENT, 'rtehjghfghfjhgfhgftrr'.mt_rand(0,1231231));
+            $security = new Security;
+
+            $this->curl->setOption(   CURLOPT_USERAGENT, 'Mozzillio Firefoxio '.mt_srand( time() )   );
             if ($html = $this->curl->get($link)) {
 //                Yii::info('[' . $this->account->name . ',  code: '.$this->curl->responseCode.'] : start processing link: ' . $link, 'parseInfo');
                 return $this->responseDecode($html);
@@ -238,6 +252,7 @@ abstract class BaseParser
     {
         $retry = 0;
         do {
+            /* если ответа нет, то обработки ответа не происходит */
             if(!$data = $this->processUrl($link)) {
                 return false;
             }

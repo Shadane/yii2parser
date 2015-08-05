@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use app\components\parser\BaseParser;
 use Yii;
 use app\models\Account;
 use app\models\Market;
@@ -18,6 +19,9 @@ use app\components\parser\AppleParser;
 class ParseManager
 {
     private $error;
+    /**
+     * @var BaseParser
+     */
     private $parser;
     private $force = false;
     private $totalCount = 0;
@@ -129,6 +133,17 @@ class ParseManager
 
     }
 
+    /**
+     * 1)Выставляем в парсере аккаунт
+     * 2)Получаем из парсера ссылку на страницу аккаунта
+     * 3)Запускаем процессинг страницы аккаунта до тех пор пока не перестанет
+     * возвращаться новая страница. После каждой страницы происходит сохранение
+     * и обнуление массивов.
+     *
+     * @param $acc Account
+     * @param $updateEveryAppFlag
+     *
+     */
     private function parseByAccPage($acc, $updateEveryAppFlag){
         $this->parser->setAccount($acc);
         $link = $this->parser->getLink();
@@ -140,10 +155,10 @@ class ParseManager
                 $this->save($apps, $updateEveryAppFlag);
             }
         }while($link);
-            Yii::info('[Account: html had '.$this->parser->getListCount().' apps to parse ]','parseInfo');
             if($apps = $this->parser->getResult()){
                 $this->save($apps, $updateEveryAppFlag);
             }
+            Yii::info('[Account: html had '.$this->parser->getListCount().' apps to parse ]','parseInfo');
 
     }
 
@@ -163,22 +178,34 @@ class ParseManager
         $marketId = Market::findIdByName($marketName);
         $accounts = Account::findAll(['market_id'=>$marketId]);
 
-        $beginTime = $this->timer();
+
         foreach ($accounts as $acc)
         {
             Yii::info('[Account start: '.$acc->name.']','parseInfo');
             $this->parseOrSkip($acc);
             Yii::info('[Account done: '.$acc->name.']','parseInfo');
         }
-        Yii::info('[FINISH] [Took : '.round($this->timer() - $beginTime,6).' seconds]','parseInfo');
 
 
     }
-    public function manageParsingPage($url, $accID, $time){
+
+
+    /**
+     * Этот метод запускается из дочерних процессов(потоков),
+     * в него передается массив ссылок на обработку и ID аккаунта,
+     * а он обрабатывает эти ссылки.
+     * @param $url
+     * @param $accID
+     * @return string сериализованный массив с приложениями
+     */
+    public function manageParsingUrls($url, $accID){
 
         $acc = Account::findOne($accID);
         $this->parser = static::createParserByName($acc->market->name);
-        $apps = $this->parser->processPage($url, $acc, $time);
-        echo serialize($apps);
+
+        $url = explode(',',$url);
+        $apps = $this->parser->processPages($url, $acc);
+
+        return serialize($apps);
     }
 }

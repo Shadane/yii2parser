@@ -9,7 +9,16 @@ use app\models\UrlHelper;
 
 abstract class PQParser extends BaseParser
 {
-    private $package = 1;
+    /**
+     * Package - количество пакетов, передаваемых в каждый
+     * новый процесс.
+     * @var int
+     */
+    private $package = 5;
+    /**
+     * Streamer - обработчик и запускатор процессов.
+     * @var StreamHandler
+     */
     private $streamer;
 
     /* Следующие константы реализовывать в парсере определенного сайта */
@@ -85,6 +94,11 @@ abstract class PQParser extends BaseParser
         return pq($app)->find('a')->attr('href');
     }
 
+    /**
+     * Получает хтмл страницу и создает из нее объект phpQuery для парсинга.
+     * @param $html
+     * @return \phpQueryObject|\QueryTemplatesParse|\QueryTemplatesSource|\QueryTemplatesSourceQuery
+     */
     protected function responseDecode($html)
     {
         return phpQuery::newDocumentHTML($html, 'utf-8');
@@ -106,6 +120,12 @@ abstract class PQParser extends BaseParser
         return static::BASE_URL . $nextPage;
     }
 
+    /**
+     * Ждет до конца последнего потока
+     * Получает данные от селектора потоков.
+     * Т.е конечный результат обработки страниц.
+     * @return array
+     */
     public function getResult(){
         $this->streamer->waitToFinishAll();
         return $this->streamer->getResult();
@@ -116,10 +136,14 @@ abstract class PQParser extends BaseParser
      * Для каждого приложения в списке приложений со страницы аккаунта
      * 1) Достаем ссылку на страницу приложения
      * 2) На случай неизвестных символов перекодировываем PATH в этой ссылке
-     * 3) Получаем декодированный результат по переходу по этой ссылке
-     * 4) Обрабатываем результат в методе parseSingleApp(где и парсятся отдельные поля)
-     * 5) Проверяем полученные поля на пустоту, если есть пустые, то пробуем еще до 5 раз
-     * 6) Добавляем проверенное приложение в массив приложений
+     * 3) Складываем полученный результат в переменную package - пакет данных,
+     * который формируется для отправки в новый поток.
+     * 4) Если количество ссылок в пакете достигает номера, указанного в пере-
+     * менной $this->package, то запускаем поток и обнуляем пакеты.
+     * 5) Если пакетов было(к примеру) меньше, чем необходимо, а массив уже закончился,
+     * то после цикла они также отправляются на обработку в поток
+     * 6) Удаляем ненужные остатки phpQuery documents,
+     * 7) Получаем результат от потоков и возвращаем его.
      * @param $appList
      * @return bool
      */
@@ -129,6 +153,7 @@ abstract class PQParser extends BaseParser
         foreach ($appList as $app) {
             $appUrl = $this->parseUrl($app);
             $package[] = UrlHelper::UrlEncodePath($appUrl);
+
             if (   (count($package) === $this->package)){
                 $this->streamer->runStream($package, $this->account->id);
                 $package = [];
@@ -142,22 +167,33 @@ abstract class PQParser extends BaseParser
     }
 
 
-
-    public function processPage($url, $acc, $time){
+    /**
+     * Этот метод запускается исключительно из потоков,
+     * Для его работы необходимо переслать массив,
+     * содержащий один или несколько $url
+     *
+     * @param $url
+     * @param $acc
+     * @return array
+     */
+    public function processPages($url, $acc){
 
         $this->account = $acc;
-        $urlArr = explode(',',$url);
-        foreach($urlArr as $appUrl) {
+        foreach($url as $appUrl) {
             $this->app['url'] = $appUrl;
-//        $timeTwo = explode(' ', microtime());
-//        $timeTwo = $timeTwo[0]+$timeTwo[1];
-//        $this->app['timeBeforeRequest'] = $timeTwo - $time ;
             $this->processApp();
             $this->appPush($this->app);
         }
         return $this->getApps();
     }
 
+
+    /**
+     * По URL достается страница приложения и парсится, далее проверяются
+     * полученные поля, если есть пустые - все повторяется снова(и так до
+     * $this->maxRetry раз.
+     * @return bool
+     */
     protected function processApp(){
         $retry=0;
         do {

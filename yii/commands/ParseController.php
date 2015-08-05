@@ -1,9 +1,4 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
 
 namespace app\commands;
 
@@ -47,17 +42,8 @@ class ParseController extends Controller
         if ($errs = $parseManager->getError()){
             Yii::info($errs, 'parseInfo');
         }
-    }
+        Yii::info('[FINISH] [Took : '.Yii::getLogger()->elapsedTime.' seconds]','parseInfo');
 
-    public function actionTest()
-    {
-        $handler =new StreamHandler();
-        $handler -> openProc(1,5);
-        $handler -> openProc(2,1);
-        $handler -> openProc(3,1);
-        $handler -> openProc(4,7);
-        sleep(6);
-        print_r($handler->eventListen());
     }
 
     public function options($actionID)
@@ -65,11 +51,18 @@ class ParseController extends Controller
         return ['force'];
     }
 
+    /**
+     * Этот процесс запускается в качестве потока, на входе получает Массив ссылок и идентификатор аккаунта
+     * На выходе отдает сериализованный массив ответов(полей приложений)
+     * @param $url
+     * @param $accID
+     * @throws ErrorException
+     */
     public function actionPage($url, $accID){
-        $time = explode(' ', microtime());
-        $time = $time[0]+$time[1];
         $parseManager = new ParseManager();
-//        Yii::info('starting page in a new process','parseInfo');
-        $parseManager->manageParsingPage($url, $accID, $time);
+        echo $parseManager->manageParsingUrls($url, $accID);
+
+        throw new ErrorException('[FINISH] [Took : '.Yii::getLogger()->elapsedTime.' seconds]');
+
     }
 }
