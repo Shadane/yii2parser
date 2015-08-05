@@ -54,6 +54,15 @@ class StreamHandler
      */
     private $id = 0;
 
+    /**
+     * Можно снаружи выставить количество процессов
+     * @param $int
+     */
+    public function setMaxStreams($int){
+        if (is_int($int)){
+            $this->maxStreams = $int;
+        }
+    }
 
     /**
      * Добваляем в дескрипторы пути до вывода ошибок.

@@ -35,6 +35,15 @@ abstract class PQParser extends BaseParser
         $this->streamer = new StreamHandler();
     }
 
+    /**
+     * Выставляет количество пакетов в каждом потоке
+     * @param $int
+     */
+    public function setPackage($int){
+        if (is_int($int)){
+            $this->package = $int;
+        }
+    }
 
     /**
      * Достает из phpQuery название приложения по селектору
