@@ -94,10 +94,10 @@ abstract class BaseParser
     abstract protected function responseDecode($response);
 
     /* В этом методе будет обрабатываться список приложений с аккаунта на сайте */
-    abstract protected function processAppList($appList);
+    abstract public function processAppList($appList);
 
     /* Метод, в котором будет обрабатываться или каким-то образом доставаться массив приложений */
-    abstract protected function getResult();
+    abstract public function getResult();
 
     function className(){
         return get_called_class();
@@ -169,32 +169,32 @@ abstract class BaseParser
     }
 
 
-    /** -----------------------------------------------------------
-     *                   processAccPage
-     * -----------------------------------------------------------
-     *  Получает список приложений по переданной ссылке, создает
-     * ссылку на следующюю страницу, и запускает обработку
-     * полученного списка приложений. Возвращает ссылку
-     * на следующую страницу.
-     *
-     * Если списка приложений не получает, то возвращает false
-     * в метод parseByAccount, и парсинг текущего аккаунта
-     * завершается.
-     * ----------------------------------------------------------- */
-    public function processAccPage($link)
-    {
-        $retry=0;
-        do{
-            $appList = $this->getApplist($link);
-            $this->listCount += count($appList);
-            $retry++;
-        }while(!$appList && $this->maxRetry > $retry);
-        if(!$appList) {
-            Yii::error('[GETTING APPLIST FAILED: probably captcha problem]','parseInfo');
-            return false;
-        }
-        return $appList;
-    }
+//    /** -----------------------------------------------------------
+//     *                   processAccPage
+//     * -----------------------------------------------------------
+//     *  Получает список приложений по переданной ссылке, создает
+//     * ссылку на следующюю страницу, и запускает обработку
+//     * полученного списка приложений. Возвращает ссылку
+//     * на следующую страницу.
+//     *
+//     * Если списка приложений не получает, то возвращает false
+//     * в метод parseByAccount, и парсинг текущего аккаунта
+//     * завершается.
+//     * ----------------------------------------------------------- */
+//    public function processAccPage($link)
+//    {
+//        $retry=0;
+//        do{
+//            $appList = $this->getApplist($link);
+//            $this->listCount += count($appList);
+//            $retry++;
+//        }while(!count($appList) && $this->maxRetry > $retry);
+//        if(!count($appList)) {
+//            Yii::error('[GETTING APPLIST FAILED: probably captcha problem]','parseInfo');
+//            return false;
+//        }
+//        return $appList;
+//    }
 
     /**
      * Проверяет поля, полученные при парсинге,
@@ -228,9 +228,8 @@ abstract class BaseParser
         $retry = 0;
         do{
             $retry++;
-            $this->curl->setOption(   CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:39.0) Gecko/'.mt_srand( time() ) .' Firefox/39.0'  );
+            $this->curl->setOption(   CURLOPT_USERAGENT, 'dfsdf sdfksjdf'.mt_rand(212312,123232312).' weiwier 33 '.mt_rand(12314,212312).' '.mt_rand(0,12312).' dfoef/'.mt_srand( time() ) .'sdfsdfsd'  );
             if ($html = $this->curl->get($link)) {
-//                Yii::info('[' . $this->account->name . ',  code: '.$this->curl->responseCode.'] : start processing link: ' . $link, 'parseInfo');
                 return $this->responseDecode($html);
             }else {
                  Yii::error('[' . $this->account->name .  ',  code: '.$this->curl->responseCode.' . Retrying('.($this->maxRetry - $retry).') in 2 sec.] : ERROR processing link: ' . $link, 'parseInfo');
@@ -257,12 +256,36 @@ abstract class BaseParser
                 Yii::error('[NO DATA RETURNED: '.$link.']','parseInfo');
                 return false;
             }
+            /* Парсим список приложений из полученного содержимого страницы аккаунта */
             $appList = $this->parseAppList($data);
+            /* Это для различной статистики добавляется каунт в апплисте к общему */
+            $this->listCount += count($appList);
             $retry++;
-        } while (!$appList && $retry < $this->maxRetry);
-
+            /* Все это повторяется($this->maxRetry раз) до тех пор пока у нас нет ничего
+                в списке приложений + с каждым повтором цикла - пишется $this->logErr */
+        } while (!count($appList) && $retry < $this->maxRetry && $this->logErr($appList, $retry));
+        if(!count($appList)) {
+            Yii::error('[GETTING APPLIST FAILED] :
+             ---- [THIS MAY HAPPEN DUE TO CAPTCHA PROBLEM (20 times in a row)] ----
+             ---- [THIS MAY HAPPEN IF URL OR ACCOUNT NAME IS WRONG] ----
+             [PAGE RETURNED :::]'.$data.']','parseInfo');
+            return false;
+        }
         return $appList;
     }
 
+    /**
+     * Этот метод существует для использования в цикле do{}while(... && ... && $this->method)
+     * Он всегда возвращает true, предварительно выслав сообщение в логи и усыпив скрипт на 1 сек.
+     * @param $appList
+     * @param $retry
+     * @return bool
+     *
+     */
+    private function logErr($appList, $retry){
+        Yii::info('[Error in AppList ::: '.$this->account->name.' returns '.count($appList).' apps to parse. Retrying('.($this->maxRetry - $retry).')]','parseInfo');
+        sleep(1);
+        return true;
+    }
 
 }

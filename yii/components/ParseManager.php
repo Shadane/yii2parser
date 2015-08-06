@@ -91,6 +91,9 @@ class ParseManager
      */
     protected function save($apps, $updateEveryApp)
     {
+        if (!$apps) { return; }
+
+
         $savedCount = 0;
         foreach ($apps as $app)
         {
@@ -149,17 +152,22 @@ class ParseManager
         $link = $this->parser->getLink();
         Yii::info('[Account url: '.$link.']', 'parseInfo');
         do{
-            $appList = $this->parser->processAccPage($link);
+            /* Достаем список приложений со страницы аккаунта */
+            $appList = $this->parser->getAppList($link);
+            /* Достаем ссылку на следующую страницу со страницы аккаунта */
             $link = $this->parser->getNextPageLink();
-            if($apps = $this->parser->processAppList($appList)){
-
+            /* Если нам вернулся список, то процессим его и сохраняем результаты */
+            if($appList) {
+                $apps = $this->parser->processAppList($appList);
                 $this->save($apps, $updateEveryAppFlag);
             }
+            /* Повторяем до тех пор пока метод getNextPageLink возвращает валидную ссылку */
         }while($link);
-            if($apps = $this->parser->getResult()){
-                $this->save($apps, $updateEveryAppFlag);
-            }
-            Yii::info('[Account: html had '.$this->parser->getListCount().' apps to parse ]','parseInfo');
+            /* Добираем остатки результатов( Ранее мы не ждали их окончания чтобы не тормозить основной процесс) */
+            $apps = $this->parser->getResult();
+            $this->save($apps, $updateEveryAppFlag);
+
+            Yii::info('[Account: total applists have had '.$this->parser->getListCount().' apps to parse ]','parseInfo');
 
     }
 
