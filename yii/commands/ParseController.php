@@ -5,6 +5,7 @@ namespace app\commands;
 use app\components\ParseManager;
 use app\components\streamhandle\StreamHandler;
 use yii\console\Controller;
+use yii\base\ErrorException;
 use phpQuery;
 use Yii;
 

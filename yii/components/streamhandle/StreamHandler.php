@@ -68,8 +68,8 @@ class StreamHandler
      * Добваляем в дескрипторы пути до вывода ошибок.
      * @param $id
      */
-    private function setErrorLog($id){
-        $error_log = "tmp/error" . $id . ".txt";
+    private function setErrorLog($id,$appPath){
+        $error_log = $appPath."/tmp/error" . $id . ".txt";
         $this->descriptorSpec[2] = array("file", $error_log, "w");
 
     }
@@ -84,9 +84,10 @@ class StreamHandler
         $urls = implode(',', $url);
         $id = ++$this->id;
 
-        $this->setErrorLog($id);
+        $appPath = \Yii::$app->basePath;
+        $this->setErrorLog($id, $appPath);
 
-        $cmd = 'php yii parse/page \'' . $urls . '\'  \'' . $accID . '\']';
+        $cmd = 'php '.$appPath.'/yii parse/page \'' . $urls . '\'  \'' . $accID . '\']';
 
         $this->handles[$id] = proc_open($cmd, $this->descriptorSpec, $pipes);
 

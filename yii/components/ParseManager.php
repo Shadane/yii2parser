@@ -96,7 +96,7 @@ class ParseManager
         {
 //            echo "\n\r".'Time Elapsed:'.$app['timeBeforeRequest'];
             $model = ($updateEveryApp)? App::find()
-                                ->where(['title'=>$app['title'], 'account_id'=>$app['account_id'], 'market_id'=>$app['market_id']])
+                                ->where(['title'=>$app['title'], 'account_id'=>$app['account_id'], 'market_id'=>$app['market_id'], 'price'=>$app['price']])
                                 ->one()
                                 : NULL;
            if ($savedOrNot =  $this->internalSave($app, $model)){
