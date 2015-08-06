@@ -6,7 +6,6 @@ use app\models\Account;
 use Yii;
 use app\components\MyCurl;
 use phpQuery;
-use yii\base\Security;
 
 abstract class BaseParser
 {
@@ -190,7 +189,10 @@ abstract class BaseParser
             $this->listCount += count($appList);
             $retry++;
         }while(!$appList && $this->maxRetry > $retry);
-        if(!$appList) {return false;}
+        if(!$appList) {
+            Yii::error('[GETTING APPLIST FAILED: probably captcha problem]','parseInfo');
+            return false;
+        }
         return $appList;
     }
 
@@ -226,9 +228,7 @@ abstract class BaseParser
         $retry = 0;
         do{
             $retry++;
-            $security = new Security;
-
-            $this->curl->setOption(   CURLOPT_USERAGENT, 'Mozzillio Firefoxio '.mt_srand( time() )   );
+            $this->curl->setOption(   CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:39.0) Gecko/'.mt_srand( time() ) .' Firefox/39.0'  );
             if ($html = $this->curl->get($link)) {
 //                Yii::info('[' . $this->account->name . ',  code: '.$this->curl->responseCode.'] : start processing link: ' . $link, 'parseInfo');
                 return $this->responseDecode($html);
@@ -254,6 +254,7 @@ abstract class BaseParser
         do {
             /* если ответа нет, то обработки ответа не происходит */
             if(!$data = $this->processUrl($link)) {
+                Yii::error('[NO DATA RETURNED: '.$link.']','parseInfo');
                 return false;
             }
             $appList = $this->parseAppList($data);

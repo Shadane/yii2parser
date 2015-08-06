@@ -63,7 +63,7 @@ class ParseController extends Controller
         $parseManager = new ParseManager();
         echo $parseManager->manageParsingUrls($url, $accID);
 
-        throw new ErrorException('[FINISH] [Took : '.Yii::getLogger()->elapsedTime.' seconds]');
+//        throw new ErrorException('[FINISH] [Took : '.Yii::getLogger()->elapsedTime.' seconds]');
 
     }
 }

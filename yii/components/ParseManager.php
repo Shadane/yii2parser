@@ -147,6 +147,7 @@ class ParseManager
     private function parseByAccPage($acc, $updateEveryAppFlag){
         $this->parser->setAccount($acc);
         $link = $this->parser->getLink();
+        Yii::info('[Account url: '.$link.']', 'parseInfo');
         do{
             $appList = $this->parser->processAccPage($link);
             $link = $this->parser->getNextPageLink();
