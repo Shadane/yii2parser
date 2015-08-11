@@ -37,7 +37,8 @@
     "bower-asset/readmore": "^2.0",
     "drmabuse/yii2-slick-carousel": "dev-master",
     "evgeniyrru/yii2-slick": "*",
-    "2amigos/yii2-gallery-widget": "*"
+    "2amigos/yii2-gallery-widget": "*",
+    "thiagoalessio/tesseract_ocr": ">= 0.2.1"
   },
   "repositories":[ {
     "type": "package",

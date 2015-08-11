@@ -69,4 +69,16 @@ class OutputHelper
         }
         return $images;
     }
+
+    public static function randStr(){
+
+            $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $strLength = mt_rand(2,15);
+            $charactersLength = strlen($characters);
+            $randomString = '';
+            for ($i = 0; $i < $strLength; $i++) {
+                $randomString .= $characters[rand(0, $charactersLength - 1)];
+            }
+            return $randomString;
+    }
 }

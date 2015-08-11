@@ -190,8 +190,9 @@ abstract class PQParser extends BaseParser
         $this->account = $acc;
         foreach($url as $appUrl) {
             $this->app['url'] = $appUrl;
-            $this->processApp();
-            $this->appPush($this->app);
+           if($this->processApp()){
+                $this->appPush($this->app);
+           }
         }
         return $this->getApps();
     }
@@ -212,6 +213,7 @@ abstract class PQParser extends BaseParser
             $this->parseSingleApp($data);
             $retry++;
         } while (!$this->checkIntegrity($retry) && $retry < $this->maxRetry);
+        if (!$this->checkIntegrity($this->maxRetry)) { return false;}
         return true;
     }
 

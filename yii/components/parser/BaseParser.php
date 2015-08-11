@@ -3,6 +3,7 @@
 namespace app\components\parser;
 
 use app\models\Account;
+use app\models\OutputHelper;
 use Yii;
 use app\components\MyCurl;
 use phpQuery;
@@ -223,12 +224,13 @@ abstract class BaseParser
      */
     protected function processUrl($link)
     {
+//
         /* также при каждом запросе выставляется новый useragent, точно проверить сложно,
         но после этого перестало кидать на страницу captcha */
         $retry = 0;
         do{
             $retry++;
-            $this->curl->setOption(   CURLOPT_USERAGENT, 'dfsdf sdfksjdf'.mt_rand(212312,123232312).' weiwier 33 '.mt_rand(12314,212312).' '.mt_rand(0,12312).' dfoef/'.mt_srand( time() ) .'sdfsdfsd'  );
+            $this->curl->setOption(   CURLOPT_USERAGENT, 'dfsdf sdfksjdf '.mt_rand(212312,123232312).' weiwier 33 '.mt_rand(12314,212312).' '.mt_rand(0,12312).' dfoef/ '.mt_srand( time() ) .' sdfsdfsd'  );
             if ($html = $this->curl->get($link)) {
                 return $this->responseDecode($html);
             }else {
@@ -266,7 +268,7 @@ abstract class BaseParser
         } while (!count($appList) && $retry < $this->maxRetry && $this->logErr($appList, $retry));
         if(!count($appList)) {
             Yii::error('[GETTING APPLIST FAILED] :
-             ---- [THIS MAY HAPPEN DUE TO CAPTCHA PROBLEM (20 times in a row)] ----
+             ---- [THIS MAY HAPPEN DUE TO CAPTCHA PROBLEM ('.$this->maxRetry.' times in a row)] ----
              ---- [THIS MAY HAPPEN IF URL OR ACCOUNT NAME IS WRONG] ----
              [PAGE RETURNED :::]'.$data.']','parseInfo');
             return false;
